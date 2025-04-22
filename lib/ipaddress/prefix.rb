@@ -1,24 +1,24 @@
 module IPAddress
-  
+
   #
   # =NAME
-  #   
+  #
   # IPAddress::Prefix
   #
   # =SYNOPSIS
-  #  
+  #
   # Parent class for Prefix32 and Prefix128
   #
   # =DESCRIPTION
   #
-  # IPAddress::Prefix is the parent class for IPAddress::Prefix32 
+  # IPAddress::Prefix is the parent class for IPAddress::Prefix32
   # and IPAddress::Prefix128, defining some modules in common for
   # both the subclasses.
   #
   # IPAddress::Prefix shouldn't be accesses directly, unless
   # for particular needs.
   #
-  class Prefix 
+  class Prefix
 
     include Comparable
 
@@ -32,21 +32,21 @@ module IPAddress
     end
 
     #
-    # Returns a string with the prefix 
+    # Returns a string with the prefix
     #
     def to_s
       "#@prefix"
     end
     alias_method :inspect, :to_s
 
-    # 
+    #
     # Returns the prefix
     #
     def to_i
       @prefix
     end
 
-    # 
+    #
     # Compare the prefix
     #
     def <=>(oth)
@@ -54,7 +54,7 @@ module IPAddress
     end
 
     #
-    # Sums two prefixes or a prefix to a 
+    # Sums two prefixes or a prefix to a
     # number, returns a Integer
     #
     def +(oth)
@@ -77,14 +77,14 @@ module IPAddress
         (self.prefix - oth.prefix).abs
       end
     end
-    
+
   end # class Prefix
 
 
   class Prefix32 < Prefix
 
     IN4MASK = 0xffffffff
-    
+
     #
     # Creates a new prefix object for 32 bits IPv4 addresses
     #
@@ -100,7 +100,7 @@ module IPAddress
 
     #
     # Returns the length of the host portion
-    # of a netmask. 
+    # of a netmask.
     #
     #   prefix = Prefix32.new 24
     #
@@ -110,14 +110,14 @@ module IPAddress
     def host_prefix
       32 - @prefix
     end
-    
+
     #
     # Transforms the prefix into a string of bits
     # representing the netmask
     #
     #   prefix = IPAddress::Prefix32.new 24
-    # 
-    #   prefix.bits 
+    #
+    #   prefix.bits
     #     #=> "11111111111111111111111100000000"
     #
     def bits
@@ -125,7 +125,7 @@ module IPAddress
     end
 
     #
-    # Gives the prefix in IPv4 dotted decimal format, 
+    # Gives the prefix in IPv4 dotted decimal format,
     # i.e. the canonical netmask we're all used to
     #
     #   prefix = IPAddress::Prefix32.new 24
@@ -138,8 +138,8 @@ module IPAddress
     end
 
     #
-    # An array of octets of the IPv4 dotted decimal 
-    # format 
+    # An array of octets of the IPv4 dotted decimal
+    # format
     #
     #   prefix = IPAddress::Prefix32.new 24
     #
@@ -162,9 +162,9 @@ module IPAddress
     def to_u32
       (IN4MASK >> host_prefix) << host_prefix
     end
-    
+
     #
-    # Shortcut for the octecs in the dotted decimal 
+    # Shortcut for the octecs in the dotted decimal
     # representation
     #
     #   prefix = IPAddress::Prefix32.new 24
@@ -189,9 +189,9 @@ module IPAddress
     def hostmask
       [~to_u32].pack("N").unpack("CCCC").join(".")
     end
-    
+
     #
-    # Creates a new prefix by parsing a netmask in 
+    # Creates a new prefix by parsing a netmask in
     # dotted decimal form
     #
     #   prefix = IPAddress::Prefix32::parse_netmask "255.255.255.0"
@@ -202,7 +202,7 @@ module IPAddress
       num = octets.pack("C"*octets.size).unpack("B*").first.count "1"
       return self.new(num)
     end
-    
+
   end # class Prefix32 < Prefix
 
   class Prefix128 < Prefix
@@ -249,7 +249,7 @@ module IPAddress
 
     #
     # Returns the length of the host portion
-    # of a netmask. 
+    # of a netmask.
     #
     #   prefix = Prefix128.new 96
     #

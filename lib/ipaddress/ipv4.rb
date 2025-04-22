@@ -1,9 +1,9 @@
 require 'ipaddress/prefix'
 
-module IPAddress; 
-  # 
+module IPAddress;
+  #
   # =Name
-  # 
+  #
   # IPAddress::IPv4 - IP version 4 address manipulation library
   #
   # =Synopsis
@@ -11,19 +11,19 @@ module IPAddress;
   #    require 'ipaddress'
   #
   # =Description
-  # 
-  # Class IPAddress::IPv4 is used to handle IPv4 type addresses. 
+  #
+  # Class IPAddress::IPv4 is used to handle IPv4 type addresses.
   #
   class IPv4
-    
+
     include IPAddress
-    include Enumerable  
-    include Comparable                  
-    
+    include Enumerable
+    include Comparable
+
     #
     # This Hash contains the prefix values for Classful networks
     #
-    # Note that classes C, D and E will all have a default 
+    # Note that classes C, D and E will all have a default
     # prefix of /24 or 255.255.255.0
     #
     CLASSFUL = {
@@ -36,26 +36,26 @@ module IPAddress;
     # Regular expression to match an IPv4 address
     #
     REGEXP = Regexp.new(/((25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)\.){3}(25[0-5]|2[0-4]\d|1\d\d|[1-9]\d|\d)/)
-    
+
     #
     # Creates a new IPv4 address object.
     #
     # An IPv4 address can be expressed in any of the following forms:
-    # 
+    #
     # * "10.1.1.1/24": ip +address+ and +prefix+. This is the common and
     # suggested way to create an object                  .
     # * "10.1.1.1/255.255.255.0": ip +address+ and +netmask+. Although
     # convenient sometimes, this format is less clear than the previous
-    # one.             
+    # one.
     # * "10.1.1.1": if the address alone is specified, the prefix will be
-    # set as default 32, also known as the host prefix    
+    # set as default 32, also known as the host prefix
     #
     # Examples:
     #
     #   # These two are the same
     #   ip = IPAddress::IPv4.new("10.0.0.1/24")
     #   ip = IPAddress("10.0.0.1/24")
-    #   
+    #
     #   # These two are the same
     #   IPAddress::IPv4.new "10.0.0.1/8"
     #   IPAddress::IPv4.new "10.0.0.1/255.0.0.0"
@@ -63,18 +63,18 @@ module IPAddress;
     def initialize(str)
       raise ArgumentError, "Nil IP" unless str
       ip, netmask = str.split("/")
-      
+
       # Check the ip and remove white space
       if IPAddress.valid_ipv4?(ip)
         @address = ip.strip
       else
         raise ArgumentError, "Invalid IP #{ip.inspect}"
       end
-      
+
       # Check the netmask
       if netmask  # netmask is defined
         netmask.strip!
-        if netmask =~ /^\d{1,2}$/  # netmask in cidr format 
+        if netmask =~ /^\d{1,2}$/  # netmask in cidr format
           @prefix = Prefix32.new(netmask.to_i)
         elsif IPAddress.valid_ipv4_netmask?(netmask)  # netmask in IP format
           @prefix = Prefix32.parse_netmask(netmask)
@@ -89,7 +89,7 @@ module IPAddress;
       @octets = @address.split(".").map{|i| i.to_i}
       # 32 bits interger containing the address
       @u32 = (@octets[0]<< 24) + (@octets[1]<< 16) + (@octets[2]<< 8) + (@octets[3])
-      
+
       @allocator = 0
     end # def initialize
 
@@ -134,7 +134,7 @@ module IPAddress;
     #
     #   puts ip
     #     #=> 172.16.100.4/16
-    #   
+    #
     #   ip.prefix = 22
     #
     #   puts ip
@@ -144,7 +144,7 @@ module IPAddress;
       @prefix = Prefix32.new(num)
     end
 
-    # 
+    #
     # Returns the address as an array of decimal values
     #
     #   ip = IPAddress("172.16.100.4")
@@ -155,9 +155,9 @@ module IPAddress;
     def octets
       @octets
     end
-    
+
     #
-    # Returns a string with the address portion of 
+    # Returns a string with the address portion of
     # the IPv4 object
     #
     #   ip = IPAddress("172.16.100.4/22")
@@ -182,7 +182,7 @@ module IPAddress;
       "#@address/#@prefix"
     end
 
-    # 
+    #
     # Returns the prefix as a string in IP format
     #
     #   ip = IPAddress("172.16.100.4/22")
@@ -195,7 +195,7 @@ module IPAddress;
     end
 
     #
-    # Like IPv4#prefix=, this method allow you to 
+    # Like IPv4#prefix=, this method allow you to
     # change the prefix / netmask of an IP address
     # object.
     #
@@ -218,8 +218,8 @@ module IPAddress;
     # 32 bits integer format.
     #
     # This method is identical to the C function
-    # inet_pton to create a 32 bits address family 
-    # structure. 
+    # inet_pton to create a 32 bits address family
+    # structure.
     #
     #   ip = IPAddress("10.0.0.0/8")
     #
@@ -231,9 +231,9 @@ module IPAddress;
     end
     alias_method :to_i, :u32
     alias_method :to_u32, :u32
-    
+
     #
-    # Returns the address portion in 
+    # Returns the address portion in
     # hex
     #
     #   ip = IPAddress("10.0.0.0")
@@ -245,7 +245,7 @@ module IPAddress;
       "%.4x%.4x" % [to_u32].pack("N").unpack("nn")
     end
     alias_method :to_h, :hex
-    alias_method :to_hex, :hex   
+    alias_method :to_hex, :hex
 
     #
     # Returns the address portion of an IPv4 object
@@ -261,8 +261,8 @@ module IPAddress;
     #
     #   a = Socket.open(params) # socket details here
     #   ip = IPAddress("10.1.1.0/24")
-    #   binary_data = ["Address: "].pack("a*") + ip.data 
-    #   
+    #   binary_data = ["Address: "].pack("a*") + ip.data
+    #
     #   # Send binary data
     #   a.puts binary_data
     #
@@ -295,7 +295,7 @@ module IPAddress;
     #   ip = IPAddress("172.16.100.50/24")
     #   ip[2] = 200
     #
-    #   #=>  #<IPAddress::IPv4:0x00000000000000 @address="172.16.200.1", 
+    #   #=>  #<IPAddress::IPv4:0x00000000000000 @address="172.16.200.1",
     #   #=>       @prefix=32, @octets=[172, 16, 200, 1], @u32=2886780929>
     #
     def []=(index, value)
@@ -303,7 +303,7 @@ module IPAddress;
       initialize("#{@octets.join('.')}/#{prefix}")
     end
     alias_method :octet=, :[]=
-    
+
     #
     # Returns the address portion of an IP in binary format,
     # as a string containing a sequence of 0 and 1
@@ -335,7 +335,7 @@ module IPAddress;
         return self
       end
     end
-    
+
     #
     # Checks if the IP address is actually a network
     #
@@ -343,7 +343,7 @@ module IPAddress;
     #
     #   ip.network?
     #     #=> false
-    # 
+    #
     #   ip = IPAddress("172.16.10.64/26")
     #
     #   ip.network?
@@ -354,7 +354,7 @@ module IPAddress;
     end
 
     #
-    # Returns a new IPv4 object with the network number 
+    # Returns a new IPv4 object with the network number
     # for the given IP.
     #
     #   ip = IPAddress("172.16.10.64/24")
@@ -369,7 +369,7 @@ module IPAddress;
     #
     # Returns a new IPv4 object with the
     # first host IP address in the range.
-    # 
+    #
     # Example: given the 192.168.100.0/24 network, the first
     # host IP address is 192.168.100.1.
     #
@@ -398,10 +398,10 @@ module IPAddress;
     end
 
     #
-    # Like its sibling method IPv4#first, this method 
-    # returns a new IPv4 object with the 
+    # Like its sibling method IPv4#first, this method
+    # returns a new IPv4 object with the
     # last host IP address in the range.
-    # 
+    #
     # Example: given the 192.168.100.0/24 network, the last
     # host IP address is 192.168.100.254
     #
@@ -482,15 +482,15 @@ module IPAddress;
     # Spaceship operator to compare IPv4 objects
     #
     # Comparing IPv4 addresses is useful to ordinate
-    # them into lists that match our intuitive 
+    # them into lists that match our intuitive
     # perception of ordered IP addresses.
-    # 
+    #
     # The first comparison criteria is the u32 value.
-    # For example, 10.100.100.1 will be considered 
+    # For example, 10.100.100.1 will be considered
     # to be less than 172.16.0.1, because, in a ordered list,
     # we expect 10.100.100.1 to come before 172.16.0.1.
     #
-    # The second criteria, in case two IPv4 objects 
+    # The second criteria, in case two IPv4 objects
     # have identical addresses, is the prefix. An higher
     # prefix will be considered greater than a lower
     # prefix. This is because we expect to see
@@ -512,11 +512,11 @@ module IPAddress;
     #
     def <=>(oth)
       return nil unless oth.is_a?(self.class)
-      return prefix <=> oth.prefix if to_u32 == oth.to_u32  
+      return prefix <=> oth.prefix if to_u32 == oth.to_u32
       to_u32 <=> oth.to_u32
     end
     alias eql? ==
-    
+
     #
     # Returns the number of IP addresses included
     # in the network. It also counts the network
@@ -534,7 +534,7 @@ module IPAddress;
     #
     # Returns an array with the IP addresses of
     # all the hosts in the network.
-    # 
+    #
     #   ip = IPAddress("10.0.0.1/29")
     #
     #   ip.hosts.map {|i| i.address}
@@ -548,7 +548,7 @@ module IPAddress;
     def hosts
       to_a[1..-2]
     end
-    
+
     #
     # Returns the network number in Unsigned 32bits format
     #
@@ -593,7 +593,7 @@ module IPAddress;
     end
 
     #
-    # Checks whether a subnet includes all the 
+    # Checks whether a subnet includes all the
     # given IPv4 objects.
     #
     #   ip = IPAddress("192.168.10.100/24")
@@ -607,7 +607,7 @@ module IPAddress;
     def include_all?(*others)
       others.all? {|oth| include?(oth)}
     end
-    
+
     #
     # Checks if an IPv4 address objects belongs
     # to a private network RFC1918
@@ -633,7 +633,7 @@ module IPAddress;
     #   ip = IPAddress "224.0.0.0/4"
     #   ip.multicast?
     #     #=> true
-    #    
+    #
     def multicast?
       [self.class.new("224.0.0.0/4")].any? {|i| i.include? self}
     end
@@ -647,7 +647,7 @@ module IPAddress;
     #   ip = IPAddress "127.0.0.1"
     #   ip.loopback?
     #     #=> true
-    #    
+    #
     def loopback?
       [self.class.new("127.0.0.0/8")].any? {|i| i.include? self}
     end
@@ -679,7 +679,7 @@ module IPAddress;
       @octets.reverse.join(".") + ".in-addr.arpa"
     end
     alias_method :arpa, :reverse
-    
+
     #
     # Return a list of IP's between @address
     # and the supplied IP
@@ -708,7 +708,7 @@ module IPAddress;
     # method will calculate the network from the IP and then
     # subnet it.
     #
-    # If +subnets+ is an power of two number, the resulting 
+    # If +subnets+ is an power of two number, the resulting
     # networks will be divided evenly from the supernet.
     #
     #   network = IPAddress("172.16.10.0/24")
@@ -719,7 +719,7 @@ module IPAddress;
     #     #=>  "172.16.10.128/26",
     #     #=>  "172.16.10.192/26"]
     #
-    # If +num+ is any other number, the supernet will be 
+    # If +num+ is any other number, the supernet will be
     # divided into some networks with a even number of hosts and
     # other networks with the remaining addresses.
     #
@@ -734,7 +734,7 @@ module IPAddress;
     #
     def split(subnets=2)
       unless (1..(2**@prefix.host_prefix)).include? subnets
-        raise ArgumentError, "Value #{subnets} out of range" 
+        raise ArgumentError, "Value #{subnets} out of range"
       end
       networks = subnet(newprefix(subnets))
       until networks.size == subnets
@@ -775,7 +775,7 @@ module IPAddress;
     end
 
     #
-    # This method implements the subnetting function 
+    # This method implements the subnetting function
     # similar to the one described in RFC3531.
     #
     # By specifying a new prefix, the method calculates
@@ -790,7 +790,7 @@ module IPAddress;
     # we can calculate the subnets with a /26 prefix
     #
     #   ip.subnet(26).map{&:to_string)
-    #     #=> ["172.16.10.0/26", "172.16.10.64/26", 
+    #     #=> ["172.16.10.0/26", "172.16.10.64/26",
     #          "172.16.10.128/26", "172.16.10.192/26"]
     #
     # The resulting number of subnets will of course always be
@@ -808,7 +808,7 @@ module IPAddress;
     #
     # Returns the difference between two IP addresses
     # in unsigned int 32 bits format
-    #  
+    #
     # Example:
     #
     #   ip1 = IPAddress("172.16.10.0/24")
@@ -822,8 +822,8 @@ module IPAddress;
     end
 
     #
-    # Returns a new IPv4 object which is the result 
-    # of the summarization, if possible, of the two 
+    # Returns a new IPv4 object which is the result
+    # of the summarization, if possible, of the two
     # objects
     #
     # Example:
@@ -848,12 +848,12 @@ module IPAddress;
     end
 
     #
-    # Checks whether the ip address belongs to a 
+    # Checks whether the ip address belongs to a
     # RFC 791 CLASS A network, no matter
     # what the subnet mask is.
     #
     # Example:
-    # 
+    #
     #   ip = IPAddress("10.0.0.1/24")
     #
     #   ip.a?
@@ -862,7 +862,7 @@ module IPAddress;
     def a?
       CLASSFUL.key(8) === bits
     end
-    
+
     #
     # Checks whether the ip address belongs to a
     # RFC 791 CLASS B network, no matter
@@ -898,7 +898,7 @@ module IPAddress;
     #
     # Return the ip address in a format compatible
     # with the IPv6 Mapped IPv4 addresses
-    # 
+    #
     # Example:
     #
     #   ip = IPAddress("172.16.10.1/24")
@@ -934,10 +934,10 @@ module IPAddress;
     #
     # Creates a new IPv4 object from binary data,
     # like the one you get from a network stream.
-    # 
+    #
     # For example, on a network stream the IP 172.16.0.1
     # is represented with the binary "\254\020\n\001".
-    # 
+    #
     #   ip = IPAddress::IPv4::parse_data "\254\020\n\001"
     #   ip.prefix = 24
     #
@@ -949,7 +949,7 @@ module IPAddress;
     end
 
     #
-    # Extract an IPv4 address from a string and 
+    # Extract an IPv4 address from a string and
     # returns a new object
     #
     # Example:
@@ -963,7 +963,7 @@ module IPAddress;
     def self.extract(str)
       self.new REGEXP.match(str).to_s
     end
-    
+
     #
     # Summarization (or aggregation) is the process when two or more
     # networks are taken together to check if a supernet, including all
@@ -994,7 +994,7 @@ module IPAddress;
     #
     # We note how the network "172.16.10.0/23" includes all the addresses
     # specified in the above networks, and (more important) includes
-    # ONLY those addresses. 
+    # ONLY those addresses.
     #
     # If we summarized +ip1+ and +ip2+ with the following network:
     #
@@ -1014,7 +1014,7 @@ module IPAddress;
     #   ip4 = IPAddress("10.0.3.1/24")
     #
     #   IPAddress::IPv4::summarize(ip1,ip2,ip3,ip4).to_string
-    #     #=> "10.0.0.0/22", 
+    #     #=> "10.0.0.0/22",
     #
     # But the following networks can't be summarized in a single network:
     #
@@ -1029,7 +1029,7 @@ module IPAddress;
     def self.summarize(*args)
       # one network? no need to summarize
       return [args.first.network] if args.size == 1
-      
+
       i = 0
       result = args.dup.sort.map{|ip| ip.network}
       while i < result.size-1
@@ -1037,7 +1037,7 @@ module IPAddress;
         result[i..i+1] = sum.first if sum.size == 1
         i += 1
       end
-      
+
       result.flatten!
       if result.size == args.size
         # nothing more to summarize
@@ -1049,10 +1049,10 @@ module IPAddress;
     end
 
     #
-    # Creates a new IPv4 address object by parsing the 
+    # Creates a new IPv4 address object by parsing the
     # address in a classful way.
     #
-    # Classful addresses have a fixed netmask based on the 
+    # Classful addresses have a fixed netmask based on the
     # class they belong to:
     #
     # * Class A, from 0.0.0.0 to 127.255.255.255
@@ -1063,7 +1063,7 @@ module IPAddress;
     #
     #   ip = IPAddress::IPv4.parse_classful "10.0.0.1"
     #
-    #   ip.netmask 
+    #   ip.netmask
     #     #=> "255.0.0.0"
     #   ip.a?
     #     #=> true
@@ -1120,7 +1120,7 @@ module IPAddress;
     def newprefix(num)
       return @prefix + (Math::log2(num).ceil )
     end
-    
+
     def sum_first_found(arr)
       dup = arr.dup.reverse
       dup.each_with_index do |obj,i|

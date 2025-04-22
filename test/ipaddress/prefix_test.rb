@@ -1,5 +1,5 @@
 require 'test_helper'
- 
+
 class Prefix32Test < Minitest::Test
 
   def setup
@@ -9,7 +9,7 @@ class Prefix32Test < Minitest::Test
     @netmask24 = "255.255.255.0"
     @netmask30 = "255.255.255.252"
     @netmasks  = [@netmask0,@netmask8,@netmask16,@netmask24,@netmask30]
-    
+
     @prefix_hash = {
       "0.0.0.0"         => 0,
       "255.0.0.0"       => 8,
@@ -30,7 +30,7 @@ class Prefix32Test < Minitest::Test
       16 => 4294901760,
       24 => 4294967040,
       30 => 4294967292}
-    
+
     @klass = IPAddress::Prefix32
   end
 
@@ -55,12 +55,12 @@ class Prefix32Test < Minitest::Test
       assert_equal netmask, prefix.to_ip
     end
   end
-  
+
   def test_method_to_s
     prefix = @klass.new(8)
     assert_equal "8", prefix.to_s
   end
-  
+
   def test_method_bits
     prefix = @klass.new(16)
     str = "1"*16 + "0"*16
@@ -115,19 +115,19 @@ class Prefix32Test < Minitest::Test
     prefix = @klass.new(8)
     assert_equal "0.255.255.255", prefix.hostmask
   end
-    
+
 end # class Prefix32Test
 
-  
+
 class Prefix128Test < Minitest::Test
-  
+
   def setup
     @u128_hash = {
       32  => 340282366841710300949110269838224261120,
       64 => 340282366920938463444927863358058659840,
       96 => 340282366920938463463374607427473244160,
       126 => 340282366920938463463374607431768211452}
-    
+
     @klass = IPAddress::Prefix128
   end
 
