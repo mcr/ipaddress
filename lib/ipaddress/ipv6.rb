@@ -434,7 +434,7 @@ module IPAddress;
     #   ip.link_local?
     #     #=> true
     #
-    def link_local?
+    def link_local_network?
       [self.class.new("fe80::/64")].any? {|i| i.include? self}
     end
 
