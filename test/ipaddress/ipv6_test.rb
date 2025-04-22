@@ -246,12 +246,12 @@ class IPv6Test < Minitest::Test
     assert_equal false, @ip.loopback?
   end
 
-  def test_method_link_local?
+  def test_method_link_local_network?
     @link_local.each do |addr|
-      assert_equal true, @klass.new(addr).link_local?
+      assert_equal true, @klass.new(addr).link_local_network?
     end
     @not_link_local.each do |addr|
-      assert_equal false, @klass.new(addr).link_local?
+      assert_equal false, @klass.new(addr).link_local_network?
     end
   end
 
